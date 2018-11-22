@@ -110,7 +110,7 @@
     <string name="objectives">Hedefler</string>
     <string name="openapsma">OpenAPS MA</string>
     <string name="overview">Genel Bakış</string>
-    <string name="nsprofile">NS (Nightscout) Profil</string>
+    <string name="nsprofile">Nightscout Profil</string>
     <string name="simpleprofile">Basit Profil</string>
     <string name="tempbasal">Geçici Bazal</string>
     <string name="treatments">Tedaviler</string>
