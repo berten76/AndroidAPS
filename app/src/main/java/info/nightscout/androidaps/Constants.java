@@ -31,7 +31,7 @@ public class Constants {
     public static final long remoteBolusMinDistance = 15 * 60 * 1000L;
 
     // Circadian Percentage Profile
-    public static final int CPP_MIN_PERCENTAGE = 50;
+    public static final int CPP_MIN_PERCENTAGE = 30;
     public static final int CPP_MAX_PERCENTAGE = 200;
     public static final int CPP_MIN_TIMESHIFT = -6;
     public static final int CPP_MAX_TIMESHIFT = 23;
@@ -49,6 +49,11 @@ public class Constants {
     public static final int defaultHypoTTDuration = 30; // min
     public static final double defaultHypoTTmgdl = 120d;
     public static final double defaultHypoTTmmol = 6.5d;
+
+    public static final double MIN_TT_MGDL = 72d;
+    public static final double MAX_TT_MGDL = 180d;
+    public static final double MIN_TT_MMOL = 4d;
+    public static final double MAX_TT_MMOL = 10d;
 
     //NSClientInternal
     public static final int MAX_LOG_LINES = 100;

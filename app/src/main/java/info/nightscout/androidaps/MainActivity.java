@@ -7,16 +7,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.os.PowerManager;
-import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -31,6 +21,16 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeModule;
 import com.squareup.otto.Subscribe;
@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import info.nightscout.androidaps.activities.AgreementActivity;
 import info.nightscout.androidaps.activities.HistoryBrowseActivity;
+import info.nightscout.androidaps.activities.NoSplashAppCompatActivity;
 import info.nightscout.androidaps.activities.PreferencesActivity;
 import info.nightscout.androidaps.activities.SingleFragmentActivity;
 import info.nightscout.androidaps.data.Profile;
@@ -63,7 +64,7 @@ import info.nightscout.androidaps.utils.OKDialog;
 import info.nightscout.androidaps.utils.PasswordProtection;
 import info.nightscout.androidaps.utils.SP;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends NoSplashAppCompatActivity {
     private static Logger log = LoggerFactory.getLogger(L.CORE);
 
     protected PowerManager.WakeLock mWakeLock;
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private MenuItem pluginPreferencesMenuItem;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (L.isEnabled(L.CORE))
@@ -198,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 try { // activity may be destroyed
                     setupTabs();
-                    setupViews(true);
+                    setupViews(false);
                 } catch (IllegalStateException e) {
                     log.error("Unhandled exception", e);
                 }
@@ -334,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
                     case AndroidPermission.CASE_LOCATION:
                     case AndroidPermission.CASE_SMS:
                     case AndroidPermission.CASE_BATTERY:
-                    case AndroidPermission.CASE_PHONESTATE:
+                    case AndroidPermission.CASE_PHONE_STATE:
                         break;
                 }
             }

@@ -47,7 +47,7 @@ public class OverviewPlugin extends PluginBase {
         super(new PluginDescription()
                 .mainType(PluginType.GENERAL)
                 .fragmentClass(OverviewFragment.class.getName())
-                .alwayVisible(true)
+                .alwaysVisible(true)
                 .alwaysEnabled(true)
                 .pluginName(R.string.overview)
                 .shortName(R.string.overview_shortname)
@@ -71,6 +71,7 @@ public class OverviewPlugin extends PluginBase {
     @Override
     protected void onStop() {
         MainApp.bus().unregister(this);
+        super.onStop();
     }
 
     @Subscribe

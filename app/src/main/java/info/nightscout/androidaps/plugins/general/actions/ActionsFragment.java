@@ -5,12 +5,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
+import androidx.fragment.app.FragmentManager;
 
 import com.squareup.otto.Subscribe;
 
@@ -26,6 +26,7 @@ import info.nightscout.androidaps.activities.HistoryBrowseActivity;
 import info.nightscout.androidaps.activities.TDDStatsActivity;
 import info.nightscout.androidaps.db.ExtendedBolus;
 import info.nightscout.androidaps.db.TemporaryBasal;
+import info.nightscout.androidaps.events.EventCustomActionsChanged;
 import info.nightscout.androidaps.events.EventExtendedBolusChange;
 import info.nightscout.androidaps.events.EventInitializationChanged;
 import info.nightscout.androidaps.events.EventRefreshOverview;
@@ -42,31 +43,21 @@ import info.nightscout.androidaps.plugins.general.careportal.CareportalFragment;
 import info.nightscout.androidaps.plugins.general.careportal.Dialogs.NewNSTreatmentDialog;
 import info.nightscout.androidaps.plugins.general.careportal.OptionsToShow;
 import info.nightscout.androidaps.plugins.treatments.TreatmentsPlugin;
-import info.nightscout.androidaps.utils.FabricPrivacy;
+import info.nightscout.androidaps.utils.SP;
 import info.nightscout.androidaps.utils.SingleClickButton;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class ActionsFragment extends SubscriberFragment implements View.OnClickListener {
 
-    static ActionsPlugin actionsPlugin = new ActionsPlugin();
-
-    static public ActionsPlugin getPlugin() {
-        return actionsPlugin;
-    }
-
-    View actionsFragmentView;
-    SingleClickButton profileSwitch;
-    SingleClickButton tempTarget;
-    SingleClickButton extendedBolus;
-    SingleClickButton extendedBolusCancel;
-    SingleClickButton tempBasal;
-    SingleClickButton tempBasalCancel;
-    SingleClickButton fill;
-    SingleClickButton tddStats;
-    SingleClickButton history;
+    private View actionsFragmentView;
+    private SingleClickButton profileSwitch;
+    private SingleClickButton tempTarget;
+    private SingleClickButton extendedBolus;
+    private SingleClickButton extendedBolusCancel;
+    private SingleClickButton tempBasal;
+    private SingleClickButton tempBasalCancel;
+    private SingleClickButton fill;
+    private SingleClickButton tddStats;
+    private SingleClickButton history;
 
     private Map<String, CustomAction> pumpCustomActions = new HashMap<>();
     private List<SingleClickButton> pumpCustomButtons = new ArrayList<>();
@@ -79,38 +70,33 @@ public class ActionsFragment extends SubscriberFragment implements View.OnClickL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        try {
-            View view = inflater.inflate(R.layout.actions_fragment, container, false);
+        View view = inflater.inflate(R.layout.actions_fragment, container, false);
 
-            profileSwitch = (SingleClickButton) view.findViewById(R.id.actions_profileswitch);
-            tempTarget = (SingleClickButton) view.findViewById(R.id.actions_temptarget);
-            extendedBolus = (SingleClickButton) view.findViewById(R.id.actions_extendedbolus);
-            extendedBolusCancel = (SingleClickButton) view.findViewById(R.id.actions_extendedbolus_cancel);
-            tempBasal = (SingleClickButton) view.findViewById(R.id.actions_settempbasal);
-            tempBasalCancel = (SingleClickButton) view.findViewById(R.id.actions_canceltempbasal);
-            fill = (SingleClickButton) view.findViewById(R.id.actions_fill);
-            tddStats = view.findViewById(R.id.actions_tddstats);
-            history = view.findViewById(R.id.actions_historybrowser);
+        profileSwitch = view.findViewById(R.id.actions_profileswitch);
+        tempTarget = view.findViewById(R.id.actions_temptarget);
+        extendedBolus = view.findViewById(R.id.actions_extendedbolus);
+        extendedBolusCancel = view.findViewById(R.id.actions_extendedbolus_cancel);
+        tempBasal = view.findViewById(R.id.actions_settempbasal);
+        tempBasalCancel = view.findViewById(R.id.actions_canceltempbasal);
+        fill = view.findViewById(R.id.actions_fill);
+        tddStats = view.findViewById(R.id.actions_tddstats);
+        history = view.findViewById(R.id.actions_historybrowser);
 
-            profileSwitch.setOnClickListener(this);
-            tempTarget.setOnClickListener(this);
-            extendedBolus.setOnClickListener(this);
-            extendedBolusCancel.setOnClickListener(this);
-            tempBasal.setOnClickListener(this);
-            tempBasalCancel.setOnClickListener(this);
-            fill.setOnClickListener(this);
-            history.setOnClickListener(this);
-            tddStats.setOnClickListener(this);
+        profileSwitch.setOnClickListener(this);
+        tempTarget.setOnClickListener(this);
+        extendedBolus.setOnClickListener(this);
+        extendedBolusCancel.setOnClickListener(this);
+        tempBasal.setOnClickListener(this);
+        tempBasalCancel.setOnClickListener(this);
+        fill.setOnClickListener(this);
+        history.setOnClickListener(this);
+        tddStats.setOnClickListener(this);
 
-            actionsFragmentView = view;
+        actionsFragmentView = view;
 
-            updateGUI();
-            return view;
-        } catch (Exception e) {
-            FabricPrivacy.logException(e);
-        }
-
-        return null;
+        updateGUI();
+        SP.putBoolean(R.string.key_objectiveuseactions, true);
+        return view;
     }
 
     @Subscribe
@@ -130,6 +116,11 @@ public class ActionsFragment extends SubscriberFragment implements View.OnClickL
 
     @Subscribe
     public void onStatusEvent(final EventTempBasalChange ev) {
+        updateGUI();
+    }
+
+    @Subscribe
+    public void onStatusEvent(final EventCustomActionsChanged ev) {
         updateGUI();
     }
 
@@ -247,6 +238,9 @@ public class ActionsFragment extends SubscriberFragment implements View.OnClickL
 
             for (CustomAction customAction : customActions) {
 
+                if (!customAction.isEnabled())
+                    continue;
+
                 SingleClickButton btn = new SingleClickButton(getContext(), null, android.R.attr.buttonStyle);
                 btn.setText(MainApp.gs(customAction.getName()));
 
@@ -264,10 +258,8 @@ public class ActionsFragment extends SubscriberFragment implements View.OnClickL
 
                 this.pumpCustomActions.put(MainApp.gs(customAction.getName()), customAction);
                 this.pumpCustomButtons.add(btn);
-
             }
         }
-
     }
 
 
@@ -283,7 +275,6 @@ public class ActionsFragment extends SubscriberFragment implements View.OnClickL
         }
 
         pumpCustomButtons.clear();
-        pumpCustomActions.clear();
     }
 
 

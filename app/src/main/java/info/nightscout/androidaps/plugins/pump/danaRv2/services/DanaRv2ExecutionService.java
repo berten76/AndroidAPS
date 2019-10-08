@@ -23,6 +23,7 @@ import info.nightscout.androidaps.events.EventProfileNeedsUpdate;
 import info.nightscout.androidaps.events.EventPumpStatusChanged;
 import info.nightscout.androidaps.interfaces.PumpInterface;
 import info.nightscout.androidaps.logging.L;
+import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.configBuilder.ConfigBuilderPlugin;
 import info.nightscout.androidaps.plugins.configBuilder.ProfileFunctions;
 import info.nightscout.androidaps.plugins.general.nsclient.NSUpload;
@@ -32,6 +33,7 @@ import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotifi
 import info.nightscout.androidaps.plugins.general.overview.events.EventOverviewBolusProgress;
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification;
 import info.nightscout.androidaps.plugins.pump.danaR.DanaRPump;
+import info.nightscout.androidaps.plugins.pump.danaR.SerialIOThread;
 import info.nightscout.androidaps.plugins.pump.danaR.comm.MessageBase;
 import info.nightscout.androidaps.plugins.pump.danaR.comm.MsgBolusProgress;
 import info.nightscout.androidaps.plugins.pump.danaR.comm.MsgBolusStart;
@@ -61,7 +63,7 @@ import info.nightscout.androidaps.plugins.pump.danaR.comm.MsgStatusBasic;
 import info.nightscout.androidaps.plugins.pump.danaR.events.EventDanaRNewStatus;
 import info.nightscout.androidaps.plugins.pump.danaR.services.AbstractDanaRExecutionService;
 import info.nightscout.androidaps.plugins.pump.danaRv2.DanaRv2Plugin;
-import info.nightscout.androidaps.plugins.pump.danaRv2.SerialIOThread;
+import info.nightscout.androidaps.plugins.pump.danaRv2.comm.MessageHashTableRv2;
 import info.nightscout.androidaps.plugins.pump.danaRv2.comm.MsgCheckValue_v2;
 import info.nightscout.androidaps.plugins.pump.danaRv2.comm.MsgHistoryEvents_v2;
 import info.nightscout.androidaps.plugins.pump.danaRv2.comm.MsgSetAPSTempBasalStart_v2;
@@ -146,7 +148,7 @@ public class DanaRv2ExecutionService extends AbstractDanaRExecutionService {
                 if (mSerialIOThread != null) {
                     mSerialIOThread.disconnect("Recreate SerialIOThread");
                 }
-                mSerialIOThread = new SerialIOThread(mRfcommSocket);
+                mSerialIOThread = new SerialIOThread(mRfcommSocket, MessageHashTableRv2.INSTANCE);
                 mHandshakeInProgress = true;
                 MainApp.bus().post(new EventPumpStatusChanged(EventPumpStatusChanged.HANDSHAKING, 0));
             }
@@ -194,6 +196,15 @@ public class DanaRv2ExecutionService extends AbstractDanaRExecutionService {
 
             MainApp.bus().post(new EventPumpStatusChanged(MainApp.gs(R.string.gettingpumptime)));
             mSerialIOThread.sendMessage(new MsgSettingPumpTime());
+            if (danaRPump.pumpTime == 0) {
+                // initial handshake was not successfull
+                // deinitialize pump
+                danaRPump.lastConnection = 0;
+                danaRPump.lastSettingsRead = 0;
+                RxBus.INSTANCE.send(new EventDanaRNewStatus());
+                MainApp.bus().post(new EventInitializationChanged());
+                return;
+            }
             long timeDiff = (danaRPump.pumpTime - System.currentTimeMillis()) / 1000L;
             if (L.isEnabled(L.PUMP))
                 log.debug("Pump time difference: " + timeDiff + " seconds");
@@ -211,7 +222,7 @@ public class DanaRv2ExecutionService extends AbstractDanaRExecutionService {
 
                     //deinitialize pump
                     danaRPump.lastConnection = 0;
-                    MainApp.bus().post(new EventDanaRNewStatus());
+                    RxBus.INSTANCE.send(new EventDanaRNewStatus());
                     MainApp.bus().post(new EventInitializationChanged());
                     return;
                 } else {
@@ -244,7 +255,7 @@ public class DanaRv2ExecutionService extends AbstractDanaRExecutionService {
 
             loadEvents();
 
-            MainApp.bus().post(new EventDanaRNewStatus());
+            RxBus.INSTANCE.send(new EventDanaRNewStatus());
             MainApp.bus().post(new EventInitializationChanged());
             NSUpload.uploadDeviceStatus();
             if (danaRPump.dailyTotalUnits > danaRPump.maxDailyTotalUnits * Constants.dailyLimitWarning) {

@@ -17,6 +17,7 @@ import java.text.DecimalFormat;
 import info.nightscout.androidaps.Constants;
 import info.nightscout.androidaps.MainApp;
 import info.nightscout.androidaps.R;
+import info.nightscout.androidaps.activities.NoSplashActivity;
 import info.nightscout.androidaps.events.EventInitializationChanged;
 import info.nightscout.androidaps.interfaces.PluginType;
 import info.nightscout.androidaps.logging.L;
@@ -31,7 +32,7 @@ import info.nightscout.androidaps.utils.NumberPicker;
  * Created by Rumen Georgiev on 5/31/2018.
  */
 
-public class DanaRUserOptionsActivity extends Activity {
+public class DanaRUserOptionsActivity extends NoSplashActivity {
     private static Logger log = LoggerFactory.getLogger(L.PUMP);
 
     Switch timeFormat;
@@ -65,7 +66,7 @@ public class DanaRUserOptionsActivity extends Activity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.danar_user_options);
 
@@ -97,10 +98,10 @@ public class DanaRUserOptionsActivity extends Activity {
                     + "\npumpUnits:" + pump.units
                     + "\nlowReservoir:" + pump.lowReservoirRate);
 
-        screenTimeout.setParams((double) pump.lcdOnTimeSec, 5d, 240d, 5d, new DecimalFormat("1"), false);
-        backlightTimeout.setParams((double) pump.backlightOnTimeSec, 1d, 60d, 1d, new DecimalFormat("1"), false);
-        shutdown.setParams((double) pump.shutdownHour, 0d, 24d, 1d, new DecimalFormat("1"), true);
-        lowReservoir.setParams((double) pump.lowReservoirRate, 10d, 60d, 10d, new DecimalFormat("10"), false);
+        screenTimeout.setParams((double) pump.lcdOnTimeSec, 5d, 240d, 5d, new DecimalFormat("1"), false, findViewById(R.id.ok));
+        backlightTimeout.setParams((double) pump.backlightOnTimeSec, 1d, 60d, 1d, new DecimalFormat("1"), false, findViewById(R.id.ok));
+        shutdown.setParams((double) pump.shutdownHour, 0d, 24d, 1d, new DecimalFormat("1"), true, findViewById(R.id.ok));
+        lowReservoir.setParams((double) pump.lowReservoirRate, 10d, 60d, 10d, new DecimalFormat("10"), false, findViewById(R.id.ok));
         switch (pump.beepAndAlarm) {
             case 0x01:
                 pumpAlarmSound.setChecked(true);

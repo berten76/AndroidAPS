@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -52,7 +52,7 @@ import info.nightscout.androidaps.utils.DecimalFormatter;
 import info.nightscout.androidaps.utils.SP;
 import info.nightscout.androidaps.utils.SafeParse;
 
-public class TDDStatsActivity extends Activity {
+public class TDDStatsActivity extends NoSplashActivity {
     private static Logger log = LoggerFactory.getLogger(TDDStatsActivity.class);
 
     TextView statusView, statsMessage, totalBaseBasal2;
@@ -99,7 +99,7 @@ public class TDDStatsActivity extends Activity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.danar_statsactivity);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);

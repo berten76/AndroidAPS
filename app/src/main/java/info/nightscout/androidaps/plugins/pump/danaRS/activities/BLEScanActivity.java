@@ -7,7 +7,6 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -20,21 +19,21 @@ import java.util.regex.Pattern;
 
 import info.nightscout.androidaps.MainApp;
 import info.nightscout.androidaps.R;
+import info.nightscout.androidaps.activities.NoSplashAppCompatActivity;
 import info.nightscout.androidaps.plugins.pump.danaRS.events.EventDanaRSDeviceChange;
 import info.nightscout.androidaps.utils.SP;
 
-public class BLEScanActivity extends AppCompatActivity {
+public class BLEScanActivity extends NoSplashAppCompatActivity {
     private ListView listView = null;
     private ListAdapter mListAdapter = null;
     private ArrayList<BluetoothDeviceItem> mDevices = new ArrayList<>();
-    ;
 
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothLeScanner mBluetoothLeScanner = null;
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.danars_blescanner_activity);
 
