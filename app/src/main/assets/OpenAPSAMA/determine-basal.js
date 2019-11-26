@@ -183,7 +183,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
     }
 
     // min_bg of 90 -> threshold of 70, 110 -> 80, and 130 -> 90
-    var threshold = min_bg - 0.5*(min_bg-50);
+    var threshold = 84; //min_bg - 0.5*(min_bg-50);
 
     rT = {
         'temp': 'absolute'
@@ -296,7 +296,7 @@ var determine_basal = function determine_basal(glucose_status, currenttemp, iob_
         rT.reason += "Autosens: " + autosens_data.ratio + "; ";
     if (bg < threshold) { // low glucose suspend mode: BG is < ~80
         rT.reason += "BG " + convert_bg(bg, profile) + "<" + convert_bg(threshold, profile);
-        if ((glucose_status.delta <= 0 && minDelta <= 0) || (glucose_status.delta < expectedDelta && minDelta < expectedDelta) || bg < 60 ) {
+        if ((glucose_status.delta <= 0 && minDelta <= 0) || (glucose_status.delta < expectedDelta && minDelta < expectedDelta) || bg < 84 ) {
             // BG is still falling / rising slower than predicted
             return tempBasalFunctions.setTempBasal(0, 30, profile, rT, currenttemp);
         }
